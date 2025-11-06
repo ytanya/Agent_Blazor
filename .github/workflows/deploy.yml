@@ -3,13 +3,11 @@ name: Deploy to Azure Static Web Apps
 on:
   push:
     branches: [ main ]
-  pull_request:
-    types: [ opened, synchronize, reopened, closed ]
+  workflow_dispatch:
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
-    name: Build and Deploy
     steps:
       - uses: actions/checkout@v4
 
@@ -22,12 +20,10 @@ jobs:
         run: dotnet restore BlazorHero.CleanArchitecture.sln
 
       - name: Publish Client
-        run: |
-          dotnet publish "src/Client/Client.csproj" -c Release -o "output/client" --no-restore
+        run: dotnet publish "src/Client/Client.csproj" -c Release -o output/client --no-restore
 
-      - name: Publish API
-        run: |
-          dotnet publish "src/Server/Server.csproj" -c Release -o "output/api" --no-restore
+      - name: Publish Server
+        run: dotnet publish "src/Server/Server.csproj" -c Release -o output/api --no-restore
 
       - name: Deploy
         uses: Azure/static-web-apps-deploy@v1
