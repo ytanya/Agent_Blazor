@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD - With Solution
+name: Azure Static Web Apps CI/CD - Final Fix
 
 on:
   push:
@@ -29,7 +29,8 @@ jobs:
           dotnet publish "src/Client/Client.csproj" \
             -c Release \
             -o "publish/client" \
-            --no-restore
+            --no-restore \
+            --verbosity minimal
 
       # PUBLISH SERVER
       - name: Publish Server
@@ -37,9 +38,10 @@ jobs:
           dotnet publish "src/Server/Server.csproj" \
             -c Release \
             -o "publish/api" \
-            --no-restore
+            --no-restore \
+            --verbosity minimal
 
-      # DEPLOY
+      # DEPLOY — SKIP ALL AUTO-BUILD
       - name: Deploy to Azure
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -51,3 +53,6 @@ jobs:
           output_location: ""
           skip_app_build: true
           skip_api_build: true
+          # Prevent any auto-detection
+          app_build_command: ""
+          api_build_command: ""
