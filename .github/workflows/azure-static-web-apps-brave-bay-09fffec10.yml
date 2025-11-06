@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD - Manual Build
+name: Azure Static Web Apps CI/CD - With Solution
 
 on:
   push:
@@ -19,11 +19,11 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # RESTORE ALL PROJECTS
-      - name: Restore
-        run: dotnet restore src/Agent_Blazor.sln
+      # RESTORE USING YOUR .sln FILE
+      - name: Restore Solution
+        run: dotnet restore BlazorHero.CleanArchitecture.sln
 
-      # PUBLISH CLIENT (Blazor WASM)
+      # PUBLISH CLIENT
       - name: Publish Client
         run: |
           dotnet publish "src/Client/Client.csproj" \
@@ -31,7 +31,7 @@ jobs:
             -o "publish/client" \
             --no-restore
 
-      # PUBLISH SERVER (API)
+      # PUBLISH SERVER
       - name: Publish Server
         run: |
           dotnet publish "src/Server/Server.csproj" \
@@ -39,7 +39,7 @@ jobs:
             -o "publish/api" \
             --no-restore
 
-      # DEPLOY — NO AUTO-BUILD!
+      # DEPLOY
       - name: Deploy to Azure
         uses: Azure/static-web-apps-deploy@v1
         with:
@@ -49,5 +49,5 @@ jobs:
           app_location: "publish/client/wwwroot"
           api_location: "publish/api"
           output_location: ""
-          skip_app_build: true     # CRITICAL: Skip Azure's broken build
-          skip_api_build: true     # CRITICAL: Skip Azure's broken build
+          skip_app_build: true
+          skip_api_build: true
