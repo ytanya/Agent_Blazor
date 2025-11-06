@@ -1,4 +1,4 @@
-name: Azure Static Web Apps CI/CD
+name: Azure Static Web Apps CI/CD - Manual Build
 
 on:
   push:
@@ -14,28 +14,40 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup .NET
+      - name: Setup .NET 8
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
 
+      # RESTORE ALL PROJECTS
+      - name: Restore
+        run: dotnet restore src/Agent_Blazor.sln
+
       # PUBLISH CLIENT (Blazor WASM)
-      - name: Publish Blazor Client
+      - name: Publish Client
         run: |
-          dotnet publish "src/Client/Client.csproj" -c Release -o "publish/client" --no-restore
+          dotnet publish "src/Client/Client.csproj" \
+            -c Release \
+            -o "publish/client" \
+            --no-restore
 
       # PUBLISH SERVER (API)
-      - name: Publish API
+      - name: Publish Server
         run: |
-          dotnet publish "src/Server/Server.csproj" -c Release -o "publish/api" --no-restore
+          dotnet publish "src/Server/Server.csproj" \
+            -c Release \
+            -o "publish/api" \
+            --no-restore
 
-      # DEPLOY TO AZURE
-      - name: Deploy to Azure Static Web Apps
+      # DEPLOY — NO AUTO-BUILD!
+      - name: Deploy to Azure
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BRAVE_BAY_09FFEC10_3 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "publish/client/wwwroot"   # Built Blazor files
-          api_location: "publish/api"              # Built API
-          output_location: ""                      # Not needed
+          app_location: "publish/client/wwwroot"
+          api_location: "publish/api"
+          output_location: ""
+          skip_app_build: true     # CRITICAL: Skip Azure's broken build
+          skip_api_build: true     # CRITICAL: Skip Azure's broken build
