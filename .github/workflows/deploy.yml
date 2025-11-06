@@ -20,7 +20,7 @@ jobs:
         run: dotnet restore BlazorHero.CleanArchitecture.sln
 
       - name: Publish Client
-        run: dotnet publish "src/Client/Client.csproj" -c Release -o output --no-restore
+        run: dotnet publish "src/Client/Client.csproj" -c Release -o output/client --no-restore
 
       - name: Publish Server
         run: dotnet publish "src/Server/Server.csproj" -c Release -o output/api --no-restore
@@ -30,7 +30,7 @@ jobs:
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BRAVE_BAY_09FFEC10 }}
           action: "upload"
-          app_location: "output"
+          app_location: "output/client/wwwroot"   # ← CORRECT: wwwroot
           api_location: "output/api"
           skip_app_build: true
           skip_api_build: true
