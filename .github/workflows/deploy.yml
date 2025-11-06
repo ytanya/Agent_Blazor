@@ -1,37 +1,53 @@
-name: Deploy to Azure Static Web Apps
+name: Deploy Blazor WASM to Azure Static Web Apps
 
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
+  pull_request:
+    types: [ opened, synchronize, reopened ]
 
 jobs:
-  deploy:
+  build_and_deploy:
     runs-on: ubuntu-latest
+    name: Build & Deploy Blazor WASM
     steps:
+      # 1. Checkout code
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
+      # 2. Setup .NET 8.0 (BlazorHero uses .NET 6+, but 8.0 is safe)
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v3
         with:
           dotnet-version: '8.0.x'
 
+      # 3. Restore dependencies
       - name: Restore
-        run: dotnet restore BlazorHero.CleanArchitecture.sln
+        run: dotnet restore src/Agent_Blazor.sln
 
-      - name: Publish Client
-        run: dotnet publish "src/Client/Client.csproj" -c Release -o output/client --no-restore
+      # 4. Publish Blazor WASM (Client)
+      - name: Publish Blazor WASM
+        run: |
+          dotnet publish src/Client/Client.csproj \
+            -c Release \
+            -o output/client/wwwroot \
+            --no-restore \
+            /p:GenerateRuntimeConfigurationFiles=true
 
-      - name: Publish Server
-        run: dotnet publish "src/Server/Server.csproj" -c Release -o output/api --no-restore
-
-      - name: Deploy
+      # 5. Deploy to Azure Static Web Apps (Frontend ONLY)
+      - name: Deploy to Azure Static Web Apps
         uses: Azure/static-web-apps-deploy@v1
         with:
-          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BRAVE_BAY_09FFEC10 }}
+          azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "output/client/wwwroot"   # ← CORRECT: wwwroot
-          api_location: "output/api"
+
+          # Paths
+          app_location: "output/client/wwwroot"   # Built WASM files
+          api_location: ""                        # No API (skip Server)
+          output_location: ""                     # Not needed
+
+          # Optional: Skip app build (we did it manually)
           skip_app_build: true
           skip_api_build: true
-          skip_deploy_on_missing_secrets: true
