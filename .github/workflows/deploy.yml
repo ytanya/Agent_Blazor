@@ -24,9 +24,8 @@ jobs:
         run: |
           dotnet publish src/Client/Client.csproj \
             -c Release \
-            --self-contained false \
             /p:UseAppHost=false \
-            /p:PublishTrimmed=false \
+            /p:DotNetJsVersion=6.0 \
             -o output/client
 
       - name: Move wwwroot to root
