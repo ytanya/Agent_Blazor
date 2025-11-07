@@ -6,6 +6,7 @@
     <RootNamespace>BlazorHero.CleanArchitecture.Client</RootNamespace>
     <AssemblyName>BlazorHero.CleanArchitecture.Client</AssemblyName>
     <LangVersion>latest</LangVersion>
+    <EnableDefaultContentItems>true</EnableDefaultContentItems>
   </PropertyGroup>
 
   <ItemGroup>
