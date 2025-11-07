@@ -7,6 +7,7 @@
     <AssemblyName>BlazorHero.CleanArchitecture.Client</AssemblyName>
     <LangVersion>latest</LangVersion>
     <EnableDefaultContentItems>true</EnableDefaultContentItems>
+    <DotNetJsVersion>6.0</DotNetJsVersion>
   </PropertyGroup>
 
   <ItemGroup>
